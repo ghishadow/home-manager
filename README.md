@@ -6,11 +6,16 @@ using the [Nix][] package manager together with the Nix libraries
 found in [Nixpkgs][]. It allows declarative configuration of user
 specific (non global) packages and dotfiles.
 
+Usage
+-----
+
 Before attempting to use Home Manager please read the warning below.
 
-For a more systematic overview of Home Manager and its available
-options, please see the Home Manager [manual][manual] and
-[options][configuration options].
+For a systematic overview of Home Manager and its available options,
+please see
+
+- the [Home Manager manual][manual] and
+- the [Home Manager configuration options][configuration options].
 
 If you would like to contribute to Home Manager
 then please have a look at the [contributing][] chapter of the manual.
@@ -36,7 +41,7 @@ will write to your dconf store and cannot tell whether a configuration
 that it is about to be overwritten was from a previous Home Manager
 generation or from manual configuration.
 
-Home Manager targets [NixOS][] unstable and NixOS version 21.11 (the
+Home Manager targets [NixOS][] unstable and NixOS version 22.05 (the
 current stable version), it may or may not work on other Linux
 distributions and NixOS versions.
 
@@ -101,7 +106,7 @@ Home Manager is developed against `nixpkgs-unstable` branch, which
 often causes it to contain tweaks for changes/packages not yet
 released in stable NixOS. To avoid breaking users' configurations,
 Home Manager is released in branches corresponding to NixOS releases
-(e.g. `release-21.11`). These branches get fixes, but usually not new
+(e.g. `release-22.05`). These branches get fixes, but usually not new
 modules. If you need a module to be backported, then feel free to open
 an issue.
 
