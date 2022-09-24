@@ -554,6 +554,156 @@ in
           A new module is available: 'services.mopidy'.
         '';
       }
+
+      {
+        time = "2022-06-21T22:29:37+00:00";
+        message = ''
+          A new module is available: 'programs.mujmap'.
+        '';
+      }
+
+      {
+        time = "2022-06-24T17:18:32+00:00";
+        message = ''
+          A new module is available: 'programs.micro'.
+        '';
+      }
+
+      {
+        time = "2022-06-24T22:40:27+00:00";
+        message = ''
+          A new module is available: 'programs.pistol'.
+        '';
+      }
+
+      {
+        time = "2022-06-26T19:29:25+00:00";
+        condition = hostPlatform.isLinux;
+        message = ''
+          A new module is available: 'services.sctd'.
+        '';
+      }
+
+      {
+        time = "2022-07-12T08:59:50+00:00";
+        condition = config.services.picom.enable;
+        message = ''
+          The 'services.picom' module has been refactored to use structural
+          settings.
+
+          As a result 'services.picom.extraOptions' has been removed in favor of
+          'services.picom.settings'. Also, 'services.picom.blur*' were removed
+          since upstream changed the blur settings to be more flexible. You can
+          migrate the blur settings to use 'services.picom.settings' instead.
+        '';
+      }
+
+      {
+        time = "2022-07-13T13:28:54+00:00";
+        condition = hostPlatform.isLinux;
+        message = ''
+          A new module is available: 'programs.librewolf'.
+        '';
+      }
+
+      {
+        time = "2022-07-24T13:17:01+00:00";
+        condition = hostPlatform.isDarwin;
+        message = ''
+          A new option is available: 'targets.darwin.currentHostDefaults'.
+
+          This exposes macOS preferences that are available through the
+          'defaults -currentHost' command.
+        '';
+      }
+
+      {
+        time = "2022-07-25T11:29:14+00:00";
+        condition = hostPlatform.isLinux;
+        message = ''
+          A new module is available: 'xsession.windowManager.spectrwm'.
+        '';
+      }
+
+      {
+        time = "2022-07-27T12:22:37+00:00";
+        condition = hostPlatform.isLinux;
+        message = ''
+          A new module is available: 'services.recoll'.
+        '';
+      }
+
+      {
+        time = "2022-08-01T16:35:28+00:00";
+        message = ''
+          A new module is available: 'programs.hyfetch'.
+        '';
+      }
+
+      {
+        time = "2022-08-07T09:07:35+00:00";
+        message = ''
+          A new module is available: 'programs.wezterm'.
+        '';
+      }
+
+      {
+        time = "2022-08-08T16:11:22+00:00";
+        message = ''
+          A new module is available: 'programs.bashmount'.
+        '';
+      }
+
+      {
+        time = "2022-08-25T21:01:37+00:00";
+        condition = hostPlatform.isLinux;
+        message = ''
+          A new module is available: 'services.pueue'.
+        '';
+      }
+
+      {
+        time = "2022-09-05T12:33:11+00:00";
+        message = ''
+          A new module is available: 'programs.btop'.
+        '';
+      }
+
+      {
+        time = "2022-09-05T11:05:25+00:00";
+        message = ''
+          A new module is available: 'editorconfig'.
+        '';
+      }
+
+      {
+        time = "2022-09-08T15:41:46+00:00";
+        message = ''
+          A new module is available: 'programs.nheko'.
+        '';
+      }
+
+      {
+        time = "2022-09-08T17:50:43+00:00";
+        message = ''
+          A new module is available: 'programs.yt-dlp'.
+        '';
+      }
+
+      {
+        time = "2022-09-09T09:55:50+00:00";
+        message = ''
+          A new module is available: 'programs.gallery-dl'.
+        '';
+      }
+
+      {
+        time = "2022-09-21T22:42:42+00:00";
+        condition = hostPlatform.isLinux;
+        message = ''
+          A new module is available: 'xsession.windowManager.fluxbox'.
+        '';
+      }
     ];
   };
 }

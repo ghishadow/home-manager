@@ -1,60 +1,92 @@
 {
   description = "Home Manager for Nix";
 
-  outputs = { self, nixpkgs }:
-    let
-      # List of systems supported by home-manager binary
-      supportedSystems = with nixpkgs.lib.platforms; linux ++ darwin;
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  inputs.utils.url = "github:numtide/flake-utils";
 
-      # Function to generate a set based on supported systems
-      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+  outputs = { self, nixpkgs, utils, ... }:
+    {
+      nixosModules = rec {
+        home-manager = import ./nixos;
+        default = home-manager;
+      };
+      # deprecated in Nix 2.8
+      nixosModule = self.nixosModules.default;
 
-      nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
-    in rec {
-      nixosModules.home-manager = import ./nixos;
-      nixosModule = self.nixosModules.home-manager;
+      darwinModules = rec {
+        home-manager = import ./nix-darwin;
+        default = home-manager;
+      };
+      # unofficial; deprecated in Nix 2.8
+      darwinModule = self.darwinModules.default;
 
-      darwinModules.home-manager = import ./nix-darwin;
-      darwinModule = self.darwinModules.home-manager;
+      templates = {
+        standalone = {
+          path = ./templates/standalone;
+          description = "Standalone setup";
+        };
+        nixos = {
+          path = ./templates/nixos;
+          description = "Home Manager as a NixOS module,";
+        };
+        nix-darwin = {
+          path = ./templates/nix-darwin;
+          description = "Home Manager as a nix-darwin module,";
+        };
+      };
 
-      packages = forAllSystems (system:
-        let docs = import ./docs { pkgs = nixpkgsFor.${system}; };
-        in {
-          home-manager = nixpkgsFor.${system}.callPackage ./home-manager { };
+      defaultTemplate = self.templates.standalone;
+
+      lib = {
+        hm = (import ./modules/lib/stdlib-extended.nix nixpkgs.lib).hm;
+        homeManagerConfiguration = { modules ? [ ], pkgs, lib ? pkgs.lib
+          , extraSpecialArgs ? { }, check ? true
+            # Deprecated:
+          , configuration ? null, extraModules ? null, stateVersion ? null
+          , username ? null, homeDirectory ? null, system ? null }@args:
+          let
+            throwForRemovedArg = v:
+              lib.throwIf (v != null) ''
+                The 'homeManagerConfiguration' arguments
+
+                  - 'configuration',
+                  - 'username',
+                  - 'homeDirectory'
+                  - 'stateVersion',
+                  - 'extraModules', and
+                  - 'system'
+
+                have been removed. Instead use the arguments 'pkgs' and
+                'modules'. See the 22.11 release notes for more.
+              '';
+
+            throwForRemovedArgs = throwForRemovedArg configuration # \
+              throwForRemovedArg username # \
+              throwForRemovedArg homeDirectory # \
+              throwForRemovedArg stateVersion # \
+              throwForRemovedArg extraModules # \
+              throwForRemovedArg system;
+          in throwForRemovedArgs (import ./modules {
+            inherit pkgs lib check extraSpecialArgs;
+            configuration = { ... }: {
+              imports = modules;
+              nixpkgs = { inherit (pkgs) config overlays; };
+            };
+          });
+      };
+    } // utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+        docs = import ./docs { inherit pkgs; };
+      in {
+        packages = rec {
+          home-manager = pkgs.callPackage ./home-manager { };
           docs-html = docs.manual.html;
           docs-manpages = docs.manPages;
           docs-json = docs.options.json;
-          default = self.packages.${system}.home-manager;
-        });
-
-      # defaultPackage is deprecated as of Nix 2.7.0
-      defaultPackage = forAllSystems (system: self.packages.${system}.default);
-
-      apps = forAllSystems (system: {
-        home-manager = {
-          type = "app";
-          program = "${defaultPackage.${system}}/bin/home-manager";
+          default = home-manager;
         };
+        # deprecated in Nix 2.7
+        defaultPackage = self.packages.${system}.default;
       });
-
-      defaultApp = forAllSystems (system: apps.${system}.home-manager);
-
-      lib = {
-        hm = import ./modules/lib { lib = nixpkgs.lib; };
-        homeManagerConfiguration = { configuration, system, homeDirectory
-          , username, extraModules ? [ ], extraSpecialArgs ? { }
-          , pkgs ? builtins.getAttr system nixpkgs.outputs.legacyPackages
-          , lib ? pkgs.lib, check ? true, stateVersion ? "20.09" }@args:
-          assert nixpkgs.lib.versionAtLeast stateVersion "20.09";
-
-          import ./modules {
-            inherit pkgs lib check extraSpecialArgs;
-            configuration = { ... }: {
-              imports = [ configuration ] ++ extraModules;
-              home = { inherit homeDirectory stateVersion username; };
-              nixpkgs = { inherit (pkgs) config overlays; };
-            };
-          };
-      };
-    };
 }

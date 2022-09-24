@@ -10,9 +10,7 @@ let
   settingsFormat = pkgs.formats.ini { };
 
 in {
-  meta = {
-    maintainers = with maintainers; [ rycee petabyteboy thiagokokada ];
-  };
+  meta.maintainers = with maintainers; [ rycee thiagokokada ];
 
   imports = let
     mkRenamed = old: new:
@@ -184,10 +182,14 @@ in {
       settingsFormat.generate xdgConfigFilePath cfg.settings;
 
     systemd.user.services.${moduleName} = {
-      Unit = {
+      Unit = let
+        geoclueAgentService =
+          lib.optional (cfg.provider == "geoclue2") "geoclue-agent.service";
+      in {
         Description = "${programName} colour temperature adjuster";
         Documentation = serviceDocumentation;
-        After = [ "graphical-session-pre.target" ];
+        After = [ "graphical-session-pre.target" ] ++ geoclueAgentService;
+        Wants = geoclueAgentService;
         PartOf = [ "graphical-session.target" ];
       };
 

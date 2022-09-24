@@ -38,7 +38,7 @@ let
 
       icon = mkOption {
         description = "Icon to display in file manager, menus, etc.";
-        type = types.nullOr types.str;
+        type = with types; nullOr (either str path);
         default = null;
       };
 
@@ -133,7 +133,7 @@ let
             description = "Program to execute, possibly with arguments.";
           };
           options.icon = mkOption {
-            type = types.nullOr types.str;
+            type = with types; nullOr (either str path);
             default = null;
             description = "Icon to display in file manager, menus, etc.";
           };
@@ -152,7 +152,7 @@ let
       };
 
       # Required for the assertions
-      # TODO: Remove me once `mkRemovedOptionModule` works correctly with submodules
+      # TODO: Remove me once https://github.com/NixOS/nixpkgs/issues/96006 is fixed
       assertions = mkOption {
         type = types.listOf types.unspecified;
         default = [ ];

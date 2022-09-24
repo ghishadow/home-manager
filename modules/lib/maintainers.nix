@@ -19,6 +19,18 @@
     githubId = 56743515;
     name = "Morgane Austreelis";
   };
+  blmhemu = {
+    name = "blmhemu";
+    email = "19410501+blmhemu@users.noreply.github.com";
+    github = "blmhemu";
+    githubId = 19410501;
+  };
+  bertof = {
+    name = "bertof";
+    email = "berto.f@protonmail.com";
+    github = "bertof";
+    githubId = 9915675;
+  };
   CarlosLoboxyz = {
     name = "Carlos Lobo";
     email = "86011416+CarlosLoboxyz@users.noreply.github.com";
@@ -107,6 +119,12 @@
     github = "matrss";
     githubId = 9308656;
   };
+  mforster = {
+    name = "Michael Forster";
+    email = "email@michael-forster.de";
+    github = "MForster";
+    githubId = 4067975;
+  };
   mifom = {
     name = "mifom";
     email = "mifom@users.noreply.github.com";
@@ -134,6 +152,12 @@
     github = "florpe";
     githubId = 53856373;
     name = "Jens Krewald";
+  };
+  GaetanLepage = {
+    email = "gaetan@glepage.com";
+    github = "GaetanLepage";
+    githubId = 33058747;
+    name = "Gaetan Lepage";
   };
   maximsmol = {
     email = "maximsmol@gmail.com";
@@ -270,5 +294,27 @@
     email = "radoslawszamszur@gmail.com";
     github = "rszamszur";
     githubId = 10353018;
+  };
+  rcerc = {
+    name = "rcerc";
+    email = "88944439+rcerc@users.noreply.github.com";
+    github = "rcerc";
+    githubId = 88944439;
+    keys = [{
+      longkeyid = "ed25519/0x3F98EC7EC2B87ED1";
+      fingerprint = "D5D6 FD1F 0D9A 3284 FB9B  C26D 3F98 EC7E C2B8 7ED1";
+    }];
+  };
+  mtoohey = {
+    name = "Matthew Toohey";
+    email = "contact@mtoohey.com";
+    github = "mtoohey31";
+    githubId = 36740602;
+  };
+  lukasngl = {
+    name = "Lukas Nagel";
+    email = "69244516+lukasngl@users.noreply.github.com";
+    github = "lukasngl";
+    githubId = 69244516;
   };
 }

@@ -263,53 +263,61 @@ let
   seatStr = moduleStr "seat";
 
   configFile = pkgs.writeText "sway.conf" (concatStringsSep "\n"
-    ((if cfg.config != null then
-      with cfg.config;
-      ([
-        (fontConfigStr fonts)
-        "floating_modifier ${floating.modifier}"
-        (windowBorderString window floating)
-        "hide_edge_borders ${window.hideEdgeBorders}"
-        "focus_wrapping ${lib.hm.booleans.yesNo focus.forceWrapping}"
-        "focus_follows_mouse ${focus.followMouse}"
-        "focus_on_window_activation ${focus.newWindow}"
-        "mouse_warping ${if focus.mouseWarping then "output" else "none"}"
-        "workspace_layout ${workspaceLayout}"
-        "workspace_auto_back_and_forth ${
-          lib.hm.booleans.yesNo workspaceAutoBackAndForth
-        }"
-        "client.focused ${colorSetStr colors.focused}"
-        "client.focused_inactive ${colorSetStr colors.focusedInactive}"
-        "client.unfocused ${colorSetStr colors.unfocused}"
-        "client.urgent ${colorSetStr colors.urgent}"
-        "client.placeholder ${colorSetStr colors.placeholder}"
-        "client.background ${colors.background}"
-        (keybindingsStr {
-          keybindings = keybindingDefaultWorkspace;
-          bindsymArgs =
-            lib.optionalString (cfg.config.bindkeysToCode) "--to-code";
-        })
-        (keybindingsStr {
-          keybindings = keybindingsRest;
-          bindsymArgs =
-            lib.optionalString (cfg.config.bindkeysToCode) "--to-code";
-        })
-        (keycodebindingsStr keycodebindings)
-      ] ++ mapAttrsToList inputStr input
-        ++ mapAttrsToList outputStr output # outputs
-        ++ mapAttrsToList seatStr seat # seats
-        ++ mapAttrsToList (modeStr cfg.config.bindkeysToCode) modes # modes
-        ++ mapAttrsToList assignStr assigns # assigns
-        ++ map barStr bars # bars
-        ++ optional (gaps != null) gapsStr # gaps
-        ++ map floatingCriteriaStr floating.criteria # floating
-        ++ map windowCommandsStr window.commands # window commands
-        ++ map startupEntryStr startup # startup
-        ++ map workspaceOutputStr workspaceOutputAssign # custom mapping
-      )
-    else
-      [ ]) ++ (optional cfg.systemdIntegration ''
-        exec "systemctl --user import-environment; systemctl --user start sway-session.target"'')
+    ((optional (cfg.extraConfigEarly != "") cfg.extraConfigEarly)
+      ++ (if cfg.config != null then
+        with cfg.config;
+        ([
+          (fontConfigStr fonts)
+          "floating_modifier ${floating.modifier}"
+          (windowBorderString window floating)
+          "hide_edge_borders ${window.hideEdgeBorders}"
+          "focus_wrapping ${lib.hm.booleans.yesNo focus.forceWrapping}"
+          "focus_follows_mouse ${focus.followMouse}"
+          "focus_on_window_activation ${focus.newWindow}"
+          "mouse_warping ${
+            if builtins.isString (focus.mouseWarping) then
+              focus.mouseWarping
+            else if focus.mouseWarping then
+              "output"
+            else
+              "none"
+          }"
+          "workspace_layout ${workspaceLayout}"
+          "workspace_auto_back_and_forth ${
+            lib.hm.booleans.yesNo workspaceAutoBackAndForth
+          }"
+          "client.focused ${colorSetStr colors.focused}"
+          "client.focused_inactive ${colorSetStr colors.focusedInactive}"
+          "client.unfocused ${colorSetStr colors.unfocused}"
+          "client.urgent ${colorSetStr colors.urgent}"
+          "client.placeholder ${colorSetStr colors.placeholder}"
+          "client.background ${colors.background}"
+          (keybindingsStr {
+            keybindings = keybindingDefaultWorkspace;
+            bindsymArgs =
+              lib.optionalString (cfg.config.bindkeysToCode) "--to-code";
+          })
+          (keybindingsStr {
+            keybindings = keybindingsRest;
+            bindsymArgs =
+              lib.optionalString (cfg.config.bindkeysToCode) "--to-code";
+          })
+          (keycodebindingsStr keycodebindings)
+        ] ++ mapAttrsToList inputStr input
+          ++ mapAttrsToList outputStr output # outputs
+          ++ mapAttrsToList seatStr seat # seats
+          ++ mapAttrsToList (modeStr cfg.config.bindkeysToCode) modes # modes
+          ++ mapAttrsToList assignStr assigns # assigns
+          ++ map barStr bars # bars
+          ++ optional (gaps != null) gapsStr # gaps
+          ++ map floatingCriteriaStr floating.criteria # floating
+          ++ map windowCommandsStr window.commands # window commands
+          ++ map startupEntryStr startup # startup
+          ++ map workspaceOutputStr workspaceOutputAssign # custom mapping
+        )
+      else
+        [ ]) ++ (optional cfg.systemdIntegration ''
+          exec "${pkgs.dbus}/bin/dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP; systemctl --user start sway-session.target"'')
       ++ (optional (!cfg.xwayland) "xwayland disable") ++ [ cfg.extraConfig ]));
 
   defaultSwayPackage = pkgs.sway.override {
@@ -320,7 +328,7 @@ let
   };
 
 in {
-  meta.maintainers = with maintainers; [ alexarice sumnerevans sebtm ];
+  meta.maintainers = with maintainers; [ alexarice sumnerevans sebtm oxalica ];
 
   options.wayland.windowManager.sway = {
     enable = mkEnableOption "sway wayland compositor";
@@ -346,6 +354,14 @@ in {
         Whether to enable <filename>sway-session.target</filename> on
         sway startup. This links to
         <filename>graphical-session.target</filename>.
+        Some important environment variables will be imported to systemd
+        and dbus user environment before reaching the target, including
+        <itemizedlist>
+          <listitem><para><literal>DISPLAY</literal></para></listitem>
+          <listitem><para><literal>WAYLAND_DISPLAY</literal></para></listitem>
+          <listitem><para><literal>SWAYSOCK</literal></para></listitem>
+          <listitem><para><literal>XDG_CURRENT_DESKTOP</literal></para></listitem>
+        </itemizedlist>
       '';
     };
 
@@ -409,6 +425,13 @@ in {
       default = "";
       description =
         "Extra configuration lines to add to ~/.config/sway/config.";
+    };
+
+    extraConfigEarly = mkOption {
+      type = types.lines;
+      default = "";
+      description =
+        "Like extraConfig, except lines are added to ~/.config/sway/config before all other configuration.";
     };
   };
 

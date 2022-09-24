@@ -26,7 +26,7 @@ in {
       '';
       description = ''
         Configuration included in <literal>config.toml</literal>.
-        For available options see <link xlink:href="https://github.com/JakeStanger/mpd-discord-rpc#configuration"/> 
+        For available options see <link xlink:href="https://github.com/JakeStanger/mpd-discord-rpc#configuration"/>
       '';
     };
 
@@ -48,7 +48,10 @@ in {
         After = [ "graphical-session-pre.target" ];
         PartOf = [ "graphical-session.desktop" ];
       };
-      Service.ExecStart = "${cfg.package}/bin/mpd-discord-rpc";
+      Service = {
+        ExecStart = "${cfg.package}/bin/mpd-discord-rpc";
+        Restart = "on-failure";
+      };
       Install.WantedBy = [ "graphical-session.target" ];
     };
   };

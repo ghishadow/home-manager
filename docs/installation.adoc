@@ -41,9 +41,6 @@ root user. For a multi-user install of Nix this means that your user
 must be covered by the {nix-allowed-users}[`allowed-users`] Nix
 option. On NixOS you can control this option using the
 {nixos-allowed-users}[`nix.allowedUsers`] system option.
-+
-Note that Nix 2.4 is not yet fully supported. Most significantly, Home
-Manager is incompatible with the new `nix profile`.
 
 2. Add the appropriate Home Manager channel. If you are following
 Nixpkgs master or an unstable channel you can run
@@ -127,21 +124,21 @@ deployed through NixOps.
 
 To make the NixOS module available for use you must `import` it into
 your system configuration. This is most conveniently done by adding a
-Home Manager channel. For example, if you are following Nixpkgs master
-or an unstable channel, you can run
+Home Manager channel to the root user. For example, if you are
+following Nixpkgs master or an unstable channel, you can run
 
 [source,console]
 ----
-# nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-# nix-channel --update
+$ sudo nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+$ sudo nix-channel --update
 ----
 
 and if you follow a Nixpkgs version 22.05 channel, you can run
 
 [source,console]
 ----
-# nix-channel --add https://github.com/nix-community/home-manager/archive/release-22.05.tar.gz home-manager
-# nix-channel --update
+$ sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-22.05.tar.gz home-manager
+$ sudo nix-channel --update
 ----
 
 It is then possible to add
@@ -164,7 +161,7 @@ home-manager.users.eve = { pkgs, ... }: {
 };
 ----
 
-and after a `nixos-rebuild switch` the user eve's environment should
+and after a `sudo nixos-rebuild switch` the user eve's environment should
 include a basic Bash configuration and the packages atool and httpie.
 
 [NOTE]
@@ -243,16 +240,16 @@ or an unstable channel, you can run
 
 [source,console]
 ----
-# nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-# nix-channel --update
+$ nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+$ nix-channel --update
 ----
 
 and if you follow a Nixpkgs version 22.05 channel, you can run
 
 [source,console]
 ----
-# nix-channel --add https://github.com/nix-community/home-manager/archive/release-22.05.tar.gz home-manager
-# nix-channel --update
+$ nix-channel --add https://github.com/nix-community/home-manager/archive/release-22.05.tar.gz home-manager
+$ nix-channel --update
 ----
 
 It is then possible to add

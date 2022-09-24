@@ -123,6 +123,38 @@ let
     };
   };
 
+  jmapModule = types.submodule {
+    options = {
+      host = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "jmap.example.org";
+        description = ''
+          Hostname of JMAP server.
+          </para><para>
+          If both this option and <xref
+          linkend="opt-accounts.email.accounts._name_.jmap.sessionUrl"/> are specified,
+          <code>host</code> is preferred by applications when establishing a
+          session.
+        '';
+      };
+
+      sessionUrl = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "https://jmap.example.org:443/.well-known/jmap";
+        description = ''
+          URL for the JMAP Session resource.
+          </para><para>
+          If both this option and <xref
+          linkend="opt-accounts.email.accounts._name_.jmap.host"/> are specified,
+          <code>host</code> is preferred by applications when establishing a
+          session.
+        '';
+      };
+    };
+  };
+
   smtpModule = types.submodule {
     options = {
       host = mkOption {
@@ -197,7 +229,14 @@ let
       };
 
       flavor = mkOption {
-        type = types.enum [ "plain" "gmail.com" "runbox.com" "fastmail.com" ];
+        type = types.enum [
+          "plain"
+          "gmail.com"
+          "runbox.com"
+          "fastmail.com"
+          "yandex.com"
+          "outlook.office365.com"
+        ];
         default = "plain";
         description = ''
           Some email providers have peculiar behavior that require
@@ -205,7 +244,7 @@ let
           indicate the nature of the provider.
           </para><para>
           When this indicates a specific provider then, for example,
-          the IMAP and SMTP server configuration may be set
+          the IMAP, SMTP, and JMAP server configuration may be set
           automatically.
         '';
       };
@@ -234,7 +273,7 @@ let
         default = null;
         description = ''
           The server username of this account. This will be used as
-          the SMTP and IMAP user name.
+          the SMTP, IMAP, and JMAP user name.
         '';
       };
 
@@ -299,6 +338,14 @@ let
         '';
       };
 
+      jmap = mkOption {
+        type = types.nullOr jmapModule;
+        default = null;
+        description = ''
+          The JMAP configuration to use for this account.
+        '';
+      };
+
       signature = mkOption {
         type = signatureModule;
         default = { };
@@ -337,17 +384,61 @@ let
         name = name;
         maildir = mkOptionDefault { path = "${name}"; };
       }
+
+      (mkIf (config.flavor == "yandex.com") {
+        userName = mkDefault config.address;
+
+        imap = {
+          host = "imap.yandex.com";
+          port = 993;
+          tls.enable = true;
+        };
+
+        smtp = {
+          host = "smtp.yandex.com";
+          port = 465;
+          tls.enable = true;
+        };
+      })
+
+      (mkIf (config.flavor == "outlook.office365.com") {
+        userName = mkDefault config.address;
+
+        imap = {
+          host = "outlook.office365.com";
+          port = 993;
+          tls.enable = true;
+        };
+
+        smtp = {
+          host = "smtp.office365.com";
+          port = 587;
+          tls = {
+            enable = true;
+            useStartTls = true;
+          };
+        };
+      })
+
       (mkIf (config.flavor == "fastmail.com") {
         userName = mkDefault config.address;
-        smtp = {
-          host = "smtp.fastmail.com";
-          port = if config.smtp.tls.useStartTls then 587 else 465;
-        };
+
         imap = {
           host = "imap.fastmail.com";
           port = 993;
         };
+
+        smtp = {
+          host = "smtp.fastmail.com";
+          port = if config.smtp.tls.useStartTls then 587 else 465;
+        };
+
+        jmap = {
+          host = "fastmail.com";
+          sessionUrl = "https://jmap.fastmail.com/.well-known/jmap";
+        };
       })
+
       (mkIf (config.flavor == "gmail.com") {
         userName = mkDefault config.address;
 
